@@ -1,6 +1,5 @@
 # Inspired by https://github.com/kylebgorman/model1/blob/master/m1.py
 
-from __future__ import division
 import numpy as np
 
 
@@ -8,14 +7,14 @@ def bitext(source, target, weighted):
     """
     Return sentence pairs
     """
-    print "Processing", len(target), "lines"
+    print("Processing", len(target), "lines")
 
     if weighted:
-        print "Weighted mode"
+        print("Weighted mode")
         weighted_source = [ [ (i,f) for i,f in enumerate(src) if f > 0.0 ] for src in source  ]
     else:
         weighted_source = [ [ (f,1.0) for f in src ] for src in source ]
-    return zip(weighted_source, target)
+    return list(zip(weighted_source, target))
 
 
 class M1(object):
@@ -54,13 +53,13 @@ class M1(object):
     def _initialize_batch(self):
         counts = {}
         counter = 0
-        print "Initializing batch"
+        print("Initializing batch")
 
         # compute raw co-occurrence counts
         for (src, tgt) in self.data:
             counter += 1
             for f,w in src:
-                print 'At line', counter,'\r',
+                print('At line', counter)
                 for e in tgt:
                     counts[(f,e)] = w
         sums = {}
@@ -91,10 +90,11 @@ class M1(object):
         """
         Iterate once through the data. 
         """
-	counter = 0
+        counter = 0
         for (src, tgt) in self.data:
-	    counter += 1
-	    print 'At line', counter, '\r',
+            counter += 1
+            if counter % 100 == 0:
+                print('At line', counter)
             for i,fw in enumerate(src):
                 f, w = fw
                 # sum of t(f|e') over all e's in current target sentence
@@ -113,7 +113,7 @@ class M1(object):
         """
         Perform 1 iteration of EM training
         """
-        print "Performing Batch iteration"
+        print("Performing Batch iteration")
 
         acounts = {}
         tcounts = {}
@@ -122,7 +122,7 @@ class M1(object):
         ## E-step
         for (src, tgt) in self.data:
             counter += 1
-            print 'At sentence', counter, '\r',
+            print('At sentence', counter)
             for i,fw in enumerate(src):
                 f,w = fw
                 total[f] = 0.0
@@ -147,7 +147,7 @@ class M1(object):
         Compute and return translation table from internal state
         """
         table = {}
-        for ((k1, k2), v) in self.acounts.iteritems():
+        for ((k1, k2), v) in self.acounts.items():
             inner = table.get(k2, {}) 
             if self.online:
                 inner[k1] = self.ttable(k1, k2)
